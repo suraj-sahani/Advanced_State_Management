@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 // Example 1: Filtered Destinations
 function FilteredDestinations() {
   const [destinations] = useState([
-    { id: 1, name: 'Paris', country: 'France', rating: 4.5 },
-    { id: 2, name: 'Tokyo', country: 'Japan', rating: 4.8 },
-    { id: 3, name: 'New York', country: 'USA', rating: 4.3 },
+    { id: 1, name: "Paris", country: "France", rating: 4.5 },
+    { id: 2, name: "Tokyo", country: "Japan", rating: 4.8 },
+    { id: 3, name: "New York", country: "USA", rating: 4.3 },
   ]);
   const [filterRating, setFilterRating] = useState(4.5);
 
@@ -67,9 +67,9 @@ function FilteredDestinations() {
 // Example 2: Trip Summary
 function TripSummary() {
   const [tripItems] = useState([
-    { id: 1, name: 'Flight', cost: 500 },
-    { id: 2, name: 'Hotel', cost: 300 },
-    { id: 3, name: 'Activities', cost: 200 },
+    { id: 1, name: "Flight", cost: 500 },
+    { id: 2, name: "Hotel", cost: 300 },
+    { id: 3, name: "Activities", cost: 200 },
   ]);
 
   const totalCost = tripItems.reduce((sum, item) => sum + item.cost, 0);
@@ -103,12 +103,12 @@ function TripSummary() {
 
 // Example 3: Available Dates
 function AvailableDates() {
-  const [bookedDates] = useState(['2024-06-01', '2024-06-02', '2024-06-03']);
+  const [bookedDates] = useState(["2024-06-01", "2024-06-02", "2024-06-03"]);
 
   const allDates = Array.from({ length: 30 }, (_, i) => {
-    const date = new Date('2024-06-01');
+    const date = new Date("2024-06-01");
     date.setDate(date.getDate() + i);
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   });
   const availableDates = allDates.filter((date) => !bookedDates.includes(date));
 
@@ -125,7 +125,7 @@ function AvailableDates() {
               variant="outline"
               className="text-xs justify-center py-1"
             >
-              {date.split('-')[2]}
+              {date.split("-")[2]}
             </Badge>
           ))}
           {availableDates.length > 15 && (
@@ -142,38 +142,37 @@ function AvailableDates() {
 // Example 4: Trip Status
 function TripStatus() {
   const [trip] = useState({
-    startDate: '2024-06-01',
-    endDate: '2024-06-05',
+    startDate: "2024-06-01",
+    endDate: "2024-06-05",
     isPaid: true,
     isConfirmed: true,
   });
-  const [status, setStatus] = useState('');
 
-  useEffect(() => {
+  const status = useMemo(() => {
     const today = new Date();
     const start = new Date(trip.startDate);
     const end = new Date(trip.endDate);
 
-    if (!trip.isPaid) setStatus('Payment Pending');
-    else if (!trip.isConfirmed) setStatus('Awaiting Confirmation');
-    else if (today < start) setStatus('Upcoming');
-    else if (today >= start && today <= end) setStatus('In Progress');
-    else setStatus('Completed');
+    if (!trip.isPaid) return "Payment Pending";
+    else if (!trip.isConfirmed) return "Awaiting Confirmation";
+    else if (today < start) return "Upcoming";
+    else if (today >= start && today <= end) return "In Progress";
+    else return "Completed";
   }, [trip]);
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'Payment Pending':
-      case 'Awaiting Confirmation':
-        return 'destructive' as const;
-      case 'In Progress':
-        return 'default' as const;
-      case 'Upcoming':
-        return 'secondary' as const;
-      case 'Completed':
-        return 'outline' as const;
+      case "Payment Pending":
+      case "Awaiting Confirmation":
+        return "destructive" as const;
+      case "In Progress":
+        return "default" as const;
+      case "Upcoming":
+        return "secondary" as const;
+      case "Completed":
+        return "outline" as const;
       default:
-        return 'secondary' as const;
+        return "secondary" as const;
     }
   };
 
@@ -197,20 +196,18 @@ function TripStatus() {
 // Example 5: Search Results
 function SearchResults() {
   const [searchResults] = useState([
-    { id: 1, name: 'Beach Resort', price: 200, rating: 4.5 },
-    { id: 2, name: 'Mountain Lodge', price: 150, rating: 4.2 },
-    { id: 3, name: 'City Hotel', price: 180, rating: 4.7 },
+    { id: 1, name: "Beach Resort", price: 200, rating: 4.5 },
+    { id: 2, name: "Mountain Lodge", price: 150, rating: 4.2 },
+    { id: 3, name: "City Hotel", price: 180, rating: 4.7 },
   ]);
-  const [sortBy, setSortBy] = useState('price');
-  const [sortedResults, setSortedResults] = useState<typeof searchResults>([]);
+  const [sortBy, setSortBy] = useState("price");
 
-  useEffect(() => {
-    const sorted = [...searchResults].sort((a, b) => {
-      if (sortBy === 'price') return a.price - b.price;
+  const sortedResults = useMemo(() => {
+    return [...searchResults].sort((a, b) => {
+      if (sortBy === "price") return a.price - b.price;
       return b.rating - a.rating;
     });
-    setSortedResults(sorted);
-  }, [searchResults, sortBy]);
+  }, [sortBy, searchResults]);
 
   return (
     <Card>
@@ -302,10 +299,10 @@ function BookingTimer() {
       <CardContent className="space-y-4">
         <div className="text-center">
           <div className="text-3xl font-mono font-bold">
-            {minutes}:{seconds.toString().padStart(2, '0')}
+            {minutes}:{seconds.toString().padStart(2, "0")}
           </div>
           <Badge
-            variant={timeLeft > 60 ? 'secondary' : 'destructive'}
+            variant={timeLeft > 60 ? "secondary" : "destructive"}
             className="mt-2"
           >
             Time remaining
@@ -327,10 +324,10 @@ function BookingTimer() {
 // Example 7: Scroll Position Tracker
 function HotelGallery() {
   const [images] = useState([
-    'hotel-lobby.jpg',
-    'hotel-room.jpg',
-    'hotel-pool.jpg',
-    'hotel-restaurant.jpg',
+    "hotel-lobby.jpg",
+    "hotel-room.jpg",
+    "hotel-pool.jpg",
+    "hotel-restaurant.jpg",
   ]);
   // const [lastScrollPosition, setLastScrollPosition] = useState(0);
   const lastScrollPositionRef = useRef<number>(0);
@@ -343,14 +340,14 @@ function HotelGallery() {
       lastScrollPositionRef.current = currentPosition;
 
       if (currentPosition > lastScrollPositionRef.current) {
-        console.log('Scrolling down');
+        console.log("Scrolling down");
       } else {
-        console.log('Scrolling up');
+        console.log("Scrolling up");
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
@@ -383,33 +380,35 @@ function HotelGallery() {
 
 // Example 8: Search Analytics
 function FlightSearch() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
     Array<{ id: number; flight: string; price: number }>
   >([]);
-  const [searchCount, setSearchCount] = useState(0);
-  const [lastSearchTime, setLastSearchTime] = useState<number | null>(null);
+  const searchCount = useRef<number>(0);
+  const lastSearchTime = useRef<number | null>(null);
 
   const handleSearch = async () => {
     const now = Date.now();
 
     // Track search analytics (doesn't affect UI)
-    setSearchCount((prev) => prev + 1); // ❌ Unnecessary re-render
-    setLastSearchTime(now); // ❌ Unnecessary re-render
+    searchCount.current = searchCount.current + 1;
+    lastSearchTime.current = now;
 
     // Simulate API call
     setTimeout(() => {
       setSearchResults([
-        { id: 1, flight: 'NYC -> LAX', price: 299 },
-        { id: 2, flight: 'NYC -> SFO', price: 349 },
+        { id: 1, flight: "NYC -> LAX", price: 299 },
+        { id: 2, flight: "NYC -> SFO", price: 349 },
       ]);
     }, 1000);
 
     // Analytics logic that doesn't need to trigger re-renders
-    if (lastSearchTime && now - lastSearchTime < 1000) {
-      console.log('User is searching too quickly');
+    if (lastSearchTime.current && now - lastSearchTime.current < 1000) {
+      console.log("User is searching too quickly");
     }
   };
+
+  console.log({ searchCount, lastSearchTime });
 
   return (
     <Card>
@@ -443,7 +442,8 @@ function FlightSearch() {
         )}
 
         <div className="text-xs text-muted-foreground border-t pt-2">
-          Debug: Search count: {searchCount}, Last search: {lastSearchTime}
+          Debug: Search count: {searchCount.current}, Last search:{" "}
+          {lastSearchTime.current}
         </div>
       </CardContent>
     </Card>
@@ -454,25 +454,25 @@ function FlightSearch() {
 function HotelSelection() {
   const [hotels] = useState([
     {
-      id: 'h1',
-      name: 'Grand Palace Hotel',
-      city: 'Paris',
+      id: "h1",
+      name: "Grand Palace Hotel",
+      city: "Paris",
       price: 350,
-      amenities: ['WiFi', 'Pool', 'Spa'],
+      amenities: ["WiFi", "Pool", "Spa"],
     },
     {
-      id: 'h2',
-      name: 'Mountain View Lodge',
-      city: 'Denver',
+      id: "h2",
+      name: "Mountain View Lodge",
+      city: "Denver",
       price: 180,
-      amenities: ['WiFi', 'Parking'],
+      amenities: ["WiFi", "Parking"],
     },
     {
-      id: 'h3',
-      name: 'Beachfront Resort',
-      city: 'Miami',
+      id: "h3",
+      name: "Beachfront Resort",
+      city: "Miami",
       price: 420,
-      amenities: ['WiFi', 'Pool', 'Beach Access'],
+      amenities: ["WiFi", "Pool", "Beach Access"],
     },
   ]);
   const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null);
@@ -495,8 +495,8 @@ function HotelSelection() {
               key={hotel.id}
               className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                 selectedHotel?.id === hotel.id
-                  ? 'border-primary bg-primary/5'
-                  : 'hover:bg-accent'
+                  ? "border-primary bg-primary/5"
+                  : "hover:bg-accent"
               }`}
               onClick={() => handleHotelSelect(hotel.id)}
             >
@@ -536,7 +536,7 @@ function HotelSelection() {
             </div>
             <div className="mt-3">
               <Badge variant="destructive" className="text-xs">
-                Storing entire object with {Object.keys(selectedHotel).length}{' '}
+                Storing entire object with {Object.keys(selectedHotel).length}{" "}
                 properties
               </Badge>
             </div>
@@ -550,13 +550,13 @@ function HotelSelection() {
 // Example 10: User Profile Data
 function TravelPreferences() {
   const [userProfile] = useState({
-    id: 'user123',
-    name: 'John Doe',
-    email: 'john@example.com',
+    id: "user123",
+    name: "John Doe",
+    email: "john@example.com",
     preferences: {
-      budget: 'medium',
-      travelStyle: 'adventure',
-      accommodationType: 'hotel',
+      budget: "medium",
+      travelStyle: "adventure",
+      accommodationType: "hotel",
     },
   });
 
@@ -624,45 +624,52 @@ function TravelPreferences() {
 // Example 11: Booking Summary
 function BookingSummary() {
   const [bookingData] = useState({
-    flightId: 'FL123',
-    hotelId: 'HT456',
-    departureDate: '2024-06-15',
-    returnDate: '2024-06-22',
+    flightId: "FL123",
+    hotelId: "HT456",
+    departureDate: "2024-06-15",
+    returnDate: "2024-06-22",
     passengers: 2,
     flightPrice: 599,
     hotelPrice: 150,
     taxes: 89,
   });
 
-  const [formattedDepartureDate, setFormattedDepartureDate] = useState('');
-  const [formattedReturnDate, setFormattedReturnDate] = useState('');
-  const [tripDuration, setTripDuration] = useState('');
-  const [totalFlightCost, setTotalFlightCost] = useState(0);
-  const [totalHotelCost, setTotalHotelCost] = useState(0);
-  const [grandTotal, setGrandTotal] = useState(0);
-
-  useEffect(() => {
-    const depDate = new Date(bookingData.departureDate);
-    const retDate = new Date(bookingData.returnDate);
-
-    setFormattedDepartureDate(
-      depDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    );
-    setFormattedReturnDate(
-      retDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    );
+  const {
+    formattedDepartureDate,
+    formattedReturnDate,
+    tripDuration,
+    totalFlightCost,
+    totalHotelCost,
+    grandTotal,
+  } = useMemo(() => {
+    const {
+      departureDate,
+      returnDate,
+      flightPrice,
+      passengers,
+      hotelPrice,
+      taxes,
+    } = bookingData;
+    const depDate = new Date(departureDate);
+    const retDate = new Date(returnDate);
 
     const diffTime = retDate.getTime() - depDate.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    setTripDuration(`${diffDays} days`);
 
-    setTotalFlightCost(bookingData.flightPrice * bookingData.passengers);
-    setTotalHotelCost(bookingData.hotelPrice * diffDays);
-    setGrandTotal(
-      bookingData.flightPrice * bookingData.passengers +
-        bookingData.hotelPrice * diffDays +
-        bookingData.taxes
-    );
+    return {
+      formattedDepartureDate: depDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+      formattedReturnDate: retDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+      tripDuration: `${diffDays} days`,
+      totalFlightCost: flightPrice * passengers,
+      totalHotelCost: hotelPrice * diffDays,
+      grandTotal: flightPrice * passengers + hotelPrice * diffDays + taxes,
+    };
   }, [bookingData]);
 
   return (
