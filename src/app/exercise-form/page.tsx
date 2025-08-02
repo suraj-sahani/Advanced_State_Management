@@ -1,50 +1,41 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
+import { useActionState } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Combobox } from '@/components/combobox';
-import { locations } from '@/app/locations';
-import { FormState, submitTravelData } from './actions';
-import { CheckCircle } from 'lucide-react';
-import { useState } from 'react';
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Combobox } from "@/components/combobox";
+import { locations } from "@/app/locations";
+import { submitTravelData, type FormState } from "./actions";
+import { CheckCircle } from "lucide-react";
 
 const seatPreferences = [
-  { value: 'window', label: 'Window' },
-  { value: 'aisle', label: 'Aisle' },
-  { value: 'middle', label: 'Middle' },
+  { value: "window", label: "Window" },
+  { value: "aisle", label: "Aisle" },
+  { value: "middle", label: "Middle" },
 ];
 
 const initialState: FormState = {
-  status: 'idle',
+  status: "idle",
   errors: {},
   data: null,
 };
 
 export default function TravelFormPage() {
-  const [state, submitAction, isPending] = React.useActionState(
+  const [state, submitAction, isPending] = useActionState(
     submitTravelData,
     initialState
   );
 
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
-
-  const isSuccess = state.status === 'success';
-  const errors = state.errors;
-  const successData = state.data;
-
-  // Success screen
-  if (isSuccess && successData) {
+  if (state.status === "success") {
     return (
       <div className="max-w-2xl w-full mx-auto min-h-screen p-6">
         <Card className="border-green-200 bg-green-50 dark:bg-green-900/10 dark:border-green-800">
@@ -67,21 +58,21 @@ export default function TravelFormPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
                   <Label>Name:</Label>
-                  {successData.firstName} {successData.lastName}
+                  {state.data?.firstName} {state.data?.lastName}
                 </div>
                 <div>
                   <Label>Birth Date:</Label>
-                  {successData.birthdate}
+                  {state.data?.birthdate}
                 </div>
                 <div>
                   <Label>Passport:</Label>
-                  {successData.passport}
+                  {state.data?.passport}
                 </div>
                 <div>
                   <Label>Origin:</Label>
                   {
                     locations.find(
-                      (loc) => loc.value === successData.originCity
+                      (loc) => loc.value === state.data?.originCity
                     )?.label
                   }
                 </div>
@@ -89,13 +80,17 @@ export default function TravelFormPage() {
                   <Label>Seat Preference:</Label>
                   {
                     seatPreferences.find(
-                      (seat) => seat.value === successData.seatPreference
+                      (seat) => seat.value === state.data?.seatPreference
                     )?.label
                   }
                 </div>
               </div>
             </div>
-            <Button onClick={handleReset} className="w-full" variant="outline">
+            <Button
+              onClick={() => window.location.reload()}
+              className="w-full"
+              variant="outline"
+            >
               Submit Another Form
             </Button>
           </CardContent>
@@ -122,24 +117,14 @@ export default function TravelFormPage() {
                   id="firstName"
                   name="firstName"
                   type="text"
+                  defaultValue={state.submittedData?.firstName || ""}
                   placeholder="Enter your first name"
-                  aria-invalid={errors.firstName ? 'true' : 'false'}
-                  onBlur={(ev) => {
-                    const value = ev.target.value;
-
-                    if (value.length < 3) {
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        firstName:
-                          'First name must be at least 3 characters long',
-                      }));
-                    }
-                  }}
+                  aria-invalid={state.errors?.firstName ? "true" : "false"}
                   disabled={isPending}
                 />
-                {errors.firstName && (
+                {state.errors?.firstName && (
                   <p className="text-sm text-red-600 dark:text-red-400">
-                    {errors.firstName}
+                    {state.errors.firstName}
                   </p>
                 )}
               </div>
@@ -150,13 +135,14 @@ export default function TravelFormPage() {
                   id="lastName"
                   name="lastName"
                   type="text"
+                  defaultValue={state.submittedData?.lastName || ""}
                   placeholder="Enter your last name"
-                  aria-invalid={errors.lastName ? 'true' : 'false'}
+                  aria-invalid={state.errors?.lastName ? "true" : "false"}
                   disabled={isPending}
                 />
-                {errors.lastName && (
+                {state.errors?.lastName && (
                   <p className="text-sm text-red-600 dark:text-red-400">
-                    {errors.lastName}
+                    {state.errors.lastName}
                   </p>
                 )}
               </div>
@@ -168,12 +154,13 @@ export default function TravelFormPage() {
                 id="birthdate"
                 name="birthdate"
                 type="date"
-                aria-invalid={errors.birthdate ? 'true' : 'false'}
+                defaultValue={state.submittedData?.birthdate || ""}
+                aria-invalid={state.errors?.birthdate ? "true" : "false"}
                 disabled={isPending}
               />
-              {errors.birthdate && (
+              {state.errors?.birthdate && (
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  {errors.birthdate}
+                  {state.errors.birthdate}
                 </p>
               )}
             </div>
@@ -184,13 +171,14 @@ export default function TravelFormPage() {
                 id="passport"
                 name="passport"
                 type="text"
+                defaultValue={state.submittedData?.passport || ""}
                 placeholder="Enter your passport number"
-                aria-invalid={errors.passport ? 'true' : 'false'}
+                aria-invalid={state.errors?.passport ? "true" : "false"}
                 disabled={isPending}
               />
-              {errors.passport && (
+              {state.errors?.passport && (
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  {errors.passport}
+                  {state.errors.passport}
                 </p>
               )}
             </div>
@@ -199,12 +187,13 @@ export default function TravelFormPage() {
               <Label htmlFor="originCity">Origin City *</Label>
               <Combobox
                 options={locations}
+                value={state.submittedData?.originCity || ""}
                 name="originCity"
                 placeholder="Select your departure city"
               />
-              {errors.originCity && (
+              {state.errors?.originCity && (
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  {errors.originCity}
+                  {state.errors.originCity}
                 </p>
               )}
             </div>
@@ -213,20 +202,21 @@ export default function TravelFormPage() {
               <Label htmlFor="seatPreference">Seat Preference *</Label>
               <Combobox
                 options={seatPreferences}
+                value={state.submittedData?.seatPreference || ""}
                 name="seatPreference"
                 placeholder="Select your seat preference"
               />
-              {errors.seatPreference && (
+              {state.errors?.seatPreference && (
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  {errors.seatPreference}
+                  {state.errors.seatPreference}
                 </p>
               )}
             </div>
 
-            {errors.general && (
+            {state.status === "error" && state.errors?.general && (
               <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-md">
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  {errors.general}
+                  {state.errors.general}
                 </p>
               </div>
             )}
@@ -257,7 +247,7 @@ export default function TravelFormPage() {
                   Submitting...
                 </>
               ) : (
-                'Submit Travel Information'
+                "Submit Travel Information"
               )}
             </Button>
           </form>
